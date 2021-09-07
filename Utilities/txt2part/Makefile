@@ -10,7 +10,7 @@ CC := gcc
 
 CCFLAGS := -m64 -Wall -fPIC -Wno-deprecated -g -O0
 
-CERN_LIBRARIES := -L$(CERN_LIB) -Wl,-static -lmathlib -lpacklib -lkernlib -Wl,-dy -llapack -lm -lnsl -lcrypt -ldl -lgfortran
+CERN_LIBRARIES := -L$(CERN_LIB) -Wl,-static -lmathlib -lpacklib -lkernlib -Wl,-dy -lm -lnsl -lcrypt -ldl -lgfortran
 CLAS_LIBRARIES := -L$(CLAS_LIB) -lscaler -lclasutil -lc_bos_io -lmapmanager -lfputil -lbos -lfpack -lc_cern
 CCLIBS := $(CLAS_LIBRARIES) $(CERN_LIBRARIES)
 
