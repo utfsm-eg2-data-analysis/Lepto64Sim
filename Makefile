@@ -33,7 +33,7 @@ CCFLAGS += $(shell root-config --cflags)
 CCFLAGS += -I$(ROOTSYS)/include -I$(CLAS_PACK)/include
 
 ROOTLIB := $(shell root-config --glibs)
-CERNLIB	:= -L$(CERN_LIB) -Wl,-static -lmathlib -lpacklib -lkernlib -Wl,-dy -llapack -lm -lnsl -lcrypt -ldl -lgfortran
+CERNLIB	:= -L$(CERN_LIB) -Wl,-static -lmathlib -lpacklib -lkernlib -Wl,-dy -lm -lnsl -lcrypt -ldl -lgfortran
 CLASLIB := -L$(CLAS_LIB) -lbosio
 MYLIBS := -Wl,-rpath, -lm -lgfortran
 LIBS := $(ROOTLIB) $(CERNLIB) $(CLASLIB) $(MYLIBS)
