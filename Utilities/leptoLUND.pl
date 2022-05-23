@@ -11,11 +11,10 @@
 $skip = 1;
 $num = 0;
 
+# event array definition
 @event_array;
 
 ($z_shift) = @ARGV;
-
-store_pdg();
 
 my $nargs = @ARGV;
 if($nargs == 0){
@@ -33,7 +32,8 @@ while (<STDIN>) { # read in a line from stdin
 
     # skip top part of file completely; until finding "Event listing"
     # we are only using the particle kinematic information, event-by-event
-    if ($field[1] eq "Event" && $field[2] eq "listing") { # We are 3 lines above the particle data for an event, get ready to analyze it.
+    if ($field[1] eq "Event" && $field[2] eq "listing") {
+	# We are 3 lines above the particle data for an event, get ready to analyze it.
 	$skip = 0;
     }
 
@@ -46,7 +46,7 @@ while (<STDIN>) { # read in a line from stdin
 	    } else {
 		$new_particle = [$field[1], $field[3], $field[4], $field[5], $field[9], $field[6], $field[7], $field[8]];
 	    }
-	    # count only final-state particles
+	    # count only final-state particles (KS == 1 reffers to final state particle)
 	    if ($field[3] == 1) {
 		$num++;
 	    }
@@ -60,11 +60,12 @@ while (<STDIN>) { # read in a line from stdin
 	    # Print LUND header
 	    # Used by gemc : Number of particles -> 1st arg
 	    #                Beam Polarization   -> 5th arg    
-	    printf "$num 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n";
+	    printf "$num 0.0 0.0 0.0 0.0 11 11.0 0.0 0.0 0.0\n";
 	    for $particle (@event_array) {
 		# select only final-state particles
 		if ($particle->[1] == 1) {
 		    # determine pid of parent particle from orig
+		    $particle_id = $particle->[2];
 		    $parent_id = 0;
 		    find_parent_id($particle->[3]);
 		    # set vertex positions
@@ -93,9 +94,9 @@ while (<STDIN>) { # read in a line from stdin
 		    printf "%4d "   , $index;           # index  
 		    printf "0.0 "   ;                   # lifetime
 		    printf "1 "     ;                   # type
-		    printf "%4d "   , $particle->[1];   # PDG
+		    printf "%4d "   , $particle_id;     # particle id (PDG)
 		    printf "%4d "   , $parent_id;       # parent index
-		    printf "%4d "   , 0;                # 1st daughter index
+		    printf "%4d "   , 0;                # 1st daughter index. Final state particle detection makes this variable useless
 		    printf "%9.7f " , $particle->[5];   # px
 		    printf "%9.7f " , $particle->[6];   # py
 		    printf "%9.7f " , $particle->[7];   # pz
@@ -137,63 +138,4 @@ sub find_parent_id() {
     if ($gparent_id != 0) {
 	$parent_id = $gparent_id;
     }
-}
-
-sub get_geant() {
-    $pid = $_[0]; # pid of particle, according to pdg
-    for ($j = 1; j <= 45; $j++) {
-	if ($pid == $pdg[$j]) {
-	    $geant_id = $j;
-	    last; # break loop
-	}
-    }
-}
-
-sub store_pdg() {
-    # adapted from eliott's code in clas_utils, which he stole from cernlib
-    $pdg[1]  = 22;
-    $pdg[2]  = -11;
-    $pdg[3]  = 11;
-    $pdg[4]  = 12;
-    $pdg[5]  = -13;
-    $pdg[6]  = 13;
-    $pdg[7]  = 111;
-    $pdg[8]  = 211;
-    $pdg[9]  = -211;
-    $pdg[10] = 130;
-    $pdg[11] = 321;
-    $pdg[12] = -321;
-    $pdg[13] = 2112;
-    $pdg[14] = 2212;
-    $pdg[15] = -2212;
-    $pdg[16] = 310;
-    $pdg[17] = 221;
-    $pdg[18] = 3122;
-    $pdg[19] = 3222;
-    $pdg[20] = 3212;
-    $pdg[21] = 3112;
-    $pdg[22] = 3322;
-    $pdg[23] = 3312;
-    $pdg[24] = 3334;
-    $pdg[25] = -2112;
-    $pdg[26] = -3122;
-    $pdg[27] = -3112;
-    $pdg[28] = -3212;
-    $pdg[29] = -3222;
-    $pdg[30] = -3322;
-    $pdg[31] = -3312;
-    $pdg[32] = -3334;
-    $pdg[33] = -15;
-    $pdg[34] = 15;
-    $pdg[35] = 411;
-    $pdg[36] = -411;
-    $pdg[37] = 421;
-    $pdg[38] = -421;
-    $pdg[39] = 431;
-    $pdg[40] = -431;
-    $pdg[41] = 4122;
-    $pdg[42] = 24;
-    $pdg[43] = -24;
-    $pdg[44] = 23;
-    $pdg[45] = 223;
 }
