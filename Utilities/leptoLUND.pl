@@ -56,7 +56,7 @@ while (<STDIN>) { # read in a line from stdin
 	# finished the event, print and reset array
 	if ($field[1] eq "sum:") {
 	    $skip = 1;
-	    $index = 0;
+	    $index = 1;
 	    # Print LUND header
 	    # Used by gemc : Number of particles -> 1st arg
 	    #                Beam Polarization   -> 5th arg    
