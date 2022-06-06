@@ -57,10 +57,14 @@ while (<STDIN>) { # read in a line from stdin
 	if ($field[1] eq "sum:") {
 	    $skip = 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    $index = 1;
 =======
 	    $index = 0;
 >>>>>>> 53b81fbbd44eee5131d60c180aa8292aebbc3dbe
+=======
+	    $index = 1;
+>>>>>>> 129e78c856f8e81f3a24ced4f18dcec4b8c69740
 	    # Print LUND header
 	    # Used by gemc : Number of particles -> 1st arg
 	    #                Beam Polarization   -> 5th arg    
