@@ -1351,7 +1351,10 @@ C...Formulae for massive scattered lepton.
       IF(Q2.LT.Q2MIN.OR.Q2.GT.Q2MAX) RETURN
       IF(W2.LT.W2MIN.OR.W2.GT.W2MAX) RETURN
 C-check: CUT(9),CUT(10) --> UMIN,UMAX needs change in /LINTRL/ --> next update 
-      IF(U.LT.CUT(9).OR.U.GT.CUT(10)) RETURN
+      IF(U.LT.CUT(9).OR.U.GT.CUT(10)) THEN
+      WRITE(*,*) 'Nu is out of range!'
+      RETURN
+      ENDIF
       IF(LST(17).EQ.0) THEN
         IF(P(4,4).LT.CUT(11).OR.P(4,4).GT.CUT(12))  RETURN
         THETAL=PLU(4,13)

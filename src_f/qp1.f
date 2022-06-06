@@ -27,18 +27,20 @@ c      REAL P,V
       INTEGER N,K
       INTEGER NEVENT
       REAL TarA,TarZ
-c     DATA NEVENT/12/
+
+      CHARACTER OUTNAME*20
 
       INTEGER NE,SET,Npid,Neta
       REAL T1,T2,T3
       real plz,ppz
       logical check_pid
 
-      plz = 5.014
+c     Beam energy
+      plz = 11
 
 
-      open(unit=31,file="lepto.txt", status="old")
-      read(31,*) NEVENT,TarA,TarZ,partpid
+      open(unit=31,file="lepto_input.txt", status="old")
+      read(31,*) NEVENT,TarA,TarZ
       close(31)
 
 c      mstj(21) = 0  !all particle decays are inhibited (PYTHIA, PYDAT1)
@@ -88,11 +90,25 @@ c     Pythia PYDAT1 : COMMON/PYDAT1/MSTU(200), PARU(200),MSTJ(200),PARJ(200)
       parj(41) = 0.6  !param 'a' of sym Lund fragmentation fnc
       parj(42) = 0.1  !param 'b' -- with D choice of frag fnc mstj(11) = 4
    
+c     These are for the general survey plots
+      cut(1)  = 0.02   ! 0.09 ! lower limit Bj x
+      cut(2)  = 0.9    ! upper limit Bj x
+      cut(3)  = 0.     ! lower limit y
+      cut(4)  = 1.     ! upper limit y
+      cut(5)  = 0.1    ! 0.3 ! 0.8    ! lower limit Q2
+      cut(6)  = 10.    ! upper limit Q2 
+      cut(7)  = 4.     ! 4 ! lower limit W2
+      cut(8)  = 20.    ! upper limit W2 !lepto.f l.277 
+      cut(9)  = 0.     ! lower limit nu
+      cut(10) = plz - .05    ! upper limit nu !previously = beam_e - .3
+      cut(11) = 0.05   ! 0.01 ! 0.3    ! lower limit E'
+      cut(12) = plz    ! upper limit E' in given ref frame
+c     cut(13) =  0.08  ! lower limit electron scat. angle, rad. (0.08 ~ 5 degrees)
+c      cut(14) =  1.05  ! upper limit electron scat. angle, rad. (1.05 ~ 60 degrees)
+
 
 c      parj(33) = 0.00001; !string tension
 c      parj(34) = 0.0001;
-
-
 
 c     Hayk's
 c      parj(41)= 1.13
@@ -108,25 +124,6 @@ c     mstp(51)= 5012  !5012 !choice of pdf, GRV98LO lst(15)
 c     pdf = 5012    
 
 
- 
-c     These are for the general survey plots
-      cut(1)  =  0.09   ! lower limit Bj x
-      cut(2)  =  1.0    ! upper limit Bj x
-      cut(3)  =  0.     ! lower limit y
-      cut(4)  =  1.     ! upper limit y
-      cut(5)  =  0.9    ! 0.8    ! lower limit Q2
-      cut(6)  =  10.    ! upper limit Q2 
-      cut(7)  =  4.     ! lower limit W2
-      cut(8)  =  20.    ! upper limit W2 !lepto.f l.277 
-      cut(9)  =  0.     ! lower limit nu
-      cut(10) =  plz-.3         ! upper limit nu
-      cut(11) = 0.01    ! 0.3    ! lower limit E'
-      cut(12) =  plz    ! upper limit E' in given ref frame
-c     cut(13) =  0.08  ! lower limit electron scat. angle, rad. (0.08 ~ 5 degrees)
-c      cut(14) =  1.05  ! upper limit electron scat. angle, rad. (1.05 ~ 60 degrees)
-
-
-
 c      parl(14) = 0.35    !+ D0.35 rT  width of G dist in pT, i.e width in the remnant split (lst27)  
 c      parl(20) = 0.1     !+ D0.1 mass reduction for the complex remnant 
 c      parl(26) = 0.22   !+ D?! value of Lambda QCD from parl(25)
@@ -135,28 +132,14 @@ c      parl(18) = 0.044   !+ D0.044 delta r from rad.corrections
 
 c     TARGET
 
-c     DEUTERIUM
-c      parl(1) = 2. 
-c      parl(2) = 1.
- 
-c     CARBON
-c      parl(1)  =  12.           ! A of target
-c      parl(2)  =  6.            ! Z of target
-
-c     IRON
-c      parl(1) = 56. 
-c      parl(2) = 26.
-
-c     LEAD
-c      parl(1) =  208.
-c      parl(2) =  82.
-
       parl(1) =  tarA
       parl(2) =  tarZ
 
       ppz = 0 
       CALL TIMEX(T1)
+      print*,'Calling LINIT'
       CALL LINIT(0,11,plz,ppz,lst(23))
+      print*,'Calling compleeteeeee'
       CALL TIMEX(T2) 
       call itime(now)
       call idate(today)
@@ -176,34 +159,25 @@ c     DO NOT USE THE YEAR IN THE PRODUCT !
       print*,'>>>>>>>>>>>> RANDOM SEED USED FOR THIS RUN : ',MRLU(1)
       print*,'>>>>>>>>>>>> TARGET CHOOSEN A = ', PARL(1)
               
-
+      WRITE(*, 950) "#" ,"NEvents", "Xb", "y", "W", "Q2", "Nu"
+ 950  FORMAT(A8,X,A8,X,A8,X,A8,X,A8,X,A8,X,A8)
+      
       DO 500 NE=1,NEVENT
-c      if(mod(ne,10).eq.0) then
+
+c     Checking the loop
 c      print*,"processing event: ",ne
-c      endif
+
   100 CALL LEPTO
+
       IF(LST(21).NE.0) THEN
         WRITE(6,*) ' Warning: LST(21)=',LST(21),' event skipped'
         GOTO 100
       ENDIF
-c      Neta = 0
-c      DO 200 Npid=1,N
-c      IF(K(NPID,2).EQ.221) THEN
-c         Neta=Neta+1
-c      ENDIF
-c  200 CONTINUE
-      IF(.not. check_pid(partpid)) THEN ! partpid is input PID, could be 211, -211, 2212, 223, 211, etc
-         GOTO 100
-      ENDIF
 
       IF(MOD(NE,1).EQ.0) THEN
+        WRITE(1, 951) N, X, Y, SQRT(W2), Q2, U
+ 951    FORMAT(I4,X ,F10.7,X ,F10.7,X ,F10.7,X ,F10.7,X ,F10.7)
         CALL LULIST(1)
-        print*,'N = ',n
-        print*,'x = ',x
-        print*,'y = ',y
-        print*,'W = ',sqrt(w2)
-        print*,'Q2= ',q2
-        print*,'nu= ',u
       ENDIF
   500 CONTINUE
       CALL TIMEX(T3)
